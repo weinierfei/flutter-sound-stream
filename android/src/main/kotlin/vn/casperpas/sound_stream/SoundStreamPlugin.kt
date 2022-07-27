@@ -379,7 +379,7 @@ public class SoundStreamPlugin : FlutterPlugin,
     private fun createRecordListener(): OnRecordPositionUpdateListener? {
         return object : OnRecordPositionUpdateListener {
             override fun onMarkerReached(recorder: AudioRecord) {
-                recorder.read(audioData!!, 0, mRecorderBufferSize)
+                recorder.read(audioData ?: ShortArray(mPeriodFrames), 0, mRecorderBufferSize)
             }
 
             override fun onPeriodicNotification(recorder: AudioRecord) {
