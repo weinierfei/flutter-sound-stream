@@ -378,13 +378,13 @@ public class SoundStreamPlugin : FlutterPlugin,
 
     private fun createRecordListener(): OnRecordPositionUpdateListener? {
         return object : OnRecordPositionUpdateListener {
-            override fun onMarkerReached(recorder: AudioRecord) {
-                recorder.read(audioData ?: ShortArray(mPeriodFrames), 0, mRecorderBufferSize)
+            override fun onMarkerReached(recorder: AudioRecord?) {
+                recorder?.read(audioData ?: ShortArray(mPeriodFrames), 0, mRecorderBufferSize)
             }
 
-            override fun onPeriodicNotification(recorder: AudioRecord) {
+            override fun onPeriodicNotification(recorder: AudioRecord?) {
                 val data = audioData!!
-                val shortOut = recorder.read(data, 0, mPeriodFrames)
+                val shortOut = recorder?.read(data, 0, mPeriodFrames) ?: 0
                 // this condistion to prevent app crash from happening in Android Devices
                 // See issues: https://github.com/CasperPas/flutter-sound-stream/issues/25
                 if (shortOut < 1) { return }
