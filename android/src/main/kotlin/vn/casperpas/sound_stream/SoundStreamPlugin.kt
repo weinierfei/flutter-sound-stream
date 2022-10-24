@@ -24,7 +24,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
 
-
 const val methodChannelName = "vn.casperpas.sound_stream:methods"
 
 enum class SoundStreamErrors {
@@ -68,7 +67,6 @@ public class SoundStreamPlugin : FlutterPlugin,
 
     //========= Player's vars
     private var mAudioTrack: AudioTrack? = null
-    private var mAudioManager: AudioManager? = null
     private var mPlayerSampleRate = 16000 // 16Khz
     private var mPlayerBufferSize = 10240
     private var mPlayerFormat: AudioFormat = AudioFormat.Builder()
@@ -106,7 +104,6 @@ public class SoundStreamPlugin : FlutterPlugin,
         try {
             when (call.method) {
                 "hasPermission" -> hasPermission(result)
-                "usePhoneSpeaker" -> usePhoneSpeaker(call, result)
                 "initializeRecorder" -> initializeRecorder(call, result)
                 "startRecording" -> startRecording(result)
                 "stopRecording" -> stopRecording(result)
@@ -198,7 +195,6 @@ public class SoundStreamPlugin : FlutterPlugin,
     }
 
     private fun initializeRecorder(@NonNull call: MethodCall, @NonNull result: Result) {
-        initAudioManager()
         mRecordSampleRate = call.argument<Int>("sampleRate") ?: mRecordSampleRate
         debugLogging = call.argument<Boolean>("showLogs") ?: false
         mPeriodFrames = AudioRecord.getMinBufferSize(mRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, mRecordFormat)
@@ -219,7 +215,6 @@ public class SoundStreamPlugin : FlutterPlugin,
             debugLog("has permission, completing")
             completeInitializeRecorder()
         }
-
         debugLog("leaving initializeIfPermitted")
     }
 
@@ -302,13 +297,7 @@ public class SoundStreamPlugin : FlutterPlugin,
         sendEventMethod("recorderStatus", status.name)
     }
 
-    private fun initAudioManager() {
-        if (mAudioManager != null) return
-        mAudioManager = currentActivity?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
     private fun initializePlayer(@NonNull call: MethodCall, @NonNull result: Result) {
-        initAudioManager()
         mPlayerSampleRate = call.argument<Int>("sampleRate") ?: mPlayerSampleRate
         debugLogging = call.argument<Boolean>("showLogs") ?: false
         mPlayerFormat = AudioFormat.Builder()
@@ -324,24 +313,12 @@ public class SoundStreamPlugin : FlutterPlugin,
         }
 
         val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-            .build()
-
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                .build()
         mAudioTrack = AudioTrack(audioAttributes, mPlayerFormat, mPlayerBufferSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
-
-        mAudioManager?.mode = AudioManager.MODE_NORMAL
-
         result.success(true)
         sendPlayerStatus(SoundStreamStatus.Initialized)
-    }
-
-    private fun usePhoneSpeaker(@NonNull call: MethodCall, @NonNull result: Result) {
-        val useSpeaker = call.argument<Boolean>("value") ?: false
-        mAudioManager?.mode = if (useSpeaker) AudioManager.MODE_IN_COMMUNICATION else AudioManager.MODE_NORMAL
-        mAudioManager?.isSpeakerphoneOn = true
-        result.success(true)
     }
 
     private fun writeChunk(@NonNull call: MethodCall, @NonNull result: Result) {
