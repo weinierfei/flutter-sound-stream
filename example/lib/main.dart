@@ -20,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   List<Uint8List> _micChunks = [];
   bool _isRecording = false;
   bool _isPlaying = false;
+  bool _useSpeaker = true;
 
   StreamSubscription _recorderStatus;
   StreamSubscription _playerStatus;
@@ -87,8 +88,8 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IconButton(
               iconSize: 96.0,
@@ -99,6 +100,16 @@ class _MyAppState extends State<MyApp> {
               iconSize: 96.0,
               icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: _isPlaying ? _player.stop : _play,
+            ),
+            IconButton(
+              iconSize: 96.0,
+              icon: Icon(_useSpeaker ? Icons.headset_off : Icons.headset),
+              onPressed: () {
+                setState(() {
+                  _useSpeaker = !_useSpeaker;
+                  _player.usePhoneSpeaker(_useSpeaker);
+                });
+              },
             ),
           ],
         ),
