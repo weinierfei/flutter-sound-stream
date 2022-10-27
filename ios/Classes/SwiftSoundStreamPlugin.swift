@@ -253,7 +253,6 @@ public class SwiftSoundStreamPlugin: NSObject, FlutterPlugin {
     }
 
     private func startRecording(_ result: @escaping FlutterResult) {
-        resetEngineForRecord()
         startEngine()
         startRecorder()
         sendRecorderStatus(SoundStreamStatus.Playing)
