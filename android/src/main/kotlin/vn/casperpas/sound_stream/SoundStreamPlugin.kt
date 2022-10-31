@@ -105,6 +105,7 @@ public class SoundStreamPlugin : FlutterPlugin,
         try {
             when (call.method) {
                 "hasPermission" -> hasPermission(result)
+                "requestPermission" -> requestRecordPermission()
                 "usePhoneSpeaker" -> usePhoneSpeaker(call, result)
                 "initializeRecorder" -> initializeRecorder(call, result)
                 "startRecording" -> startRecording(result)
