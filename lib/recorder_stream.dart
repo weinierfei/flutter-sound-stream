@@ -23,6 +23,9 @@ class RecorderStream {
         "showLogs": showLogs,
       });
 
+  Future<dynamic> requestPermission() =>
+      _methodChannel.invokeMethod<dynamic>("requestPermission");
+
   /// Start recording. Recorder will start pushing audio chunks (PCM 16bit data)
   /// to audiostream as Uint8List
   Future<dynamic> start() =>
